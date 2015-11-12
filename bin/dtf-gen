@@ -1,0 +1,103 @@
+#! /bin/bash
+
+## Some important facts about this code.
+##
+## - it's enough to do 'false' within test and it is failure.
+## - each subdirectory file is self-standing
+## - each test might have several tags -- future dependencies
+
+DTF_OUTPUT=DTF_OUTPUT
+
+
+# config
+: ${outputdir=$PWD/$DTF_OUTPUT}
+: ${toporigdir=$PWD}
+: ${libdir=/usr/lib}
+: ${datadir=/usr/share}
+
+: ${dtfdatadir=$datadir/dtf}
+: ${dtflibdir=$dtfdatadir/lib}
+: ${dtftpldir=$dtfdatadir/tpl}
+
+. "$dtflibdir/default" || exit 1
+
+
+info ()
+{
+    echo " * $*"
+}
+
+
+generate_wrapper ()
+{
+    _run_cmd=$outputdir/$1/run
+    # TODO: This is not portable.
+
+    fix_testname=$1
+    test "$fix_testname" = '.' && fix_testname=ROOT
+    fix_testname=${fix_testname##./}
+
+    echo '#! /bin/bash
+
+: ${__DTF_TOP_TEST=:}
+
+$__DTF_TOP_TEST && exec 3>&1 4>&2
+
+abs_dirname ()
+{
+    abs_dirname_result=`cd "$1" && pwd`
+}
+abs_dirname "`dirname $0`"
+srcdir=$abs_dirname_result
+' > "$_run_cmd"
+
+    cat >> "$_run_cmd" <<EOF
+export top_srcdir=\$srcdir/$(printf %q "$2")
+export testname=$(printf %q "$fix_testname")
+EOF
+
+    cat "$dtftpldir/run.tpl" >> "$_run_cmd"
+
+    chmod +x "$_run_cmd"
+}
+
+
+# count_recursive_walk SUBDIR SRCDIR TOP_SRCDIR
+# ---------------------------------------------
+count_recursive_walk ()
+{
+    cd "$1"
+
+    info "directory: $2"
+
+    mkdir -p "$outputdir/$2"
+
+    generate_wrapper "$2" "$3"
+    test -f testcase \
+        && cp testcase "$outputdir/$2"
+    test -f library && cat library >> "$outputdir/library"
+
+    for _rw_i in *
+    do
+      __dtf_is_testdir "$_rw_i" || continue
+      _rw_fulldir="$2/$_rw_i"
+
+      mkdir -p "$outputdir/$_rw_fulldir" || exit 1
+
+      count_recursive_walk "$_rw_i" "$2/$_rw_i" "$3/.."
+    done
+    cd ..
+}
+
+
+test -d "$outputdir" && {
+    chmod u+w "$outputdir" -R
+    /bin/rm -rf "$outputdir"
+}
+
+mkdir -p "$outputdir"
+cat "$dtflibdir/default" > "$outputdir/library"
+count_recursive_walk "$toporigdir" . .
+
+# Protect sources!
+chmod a-w "$outputdir" -R

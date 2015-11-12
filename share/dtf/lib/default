@@ -1,0 +1,93 @@
+#! /bin/bash
+
+# Global library file.  Methods prefixed by '__dtf_' are internal, for example
+# __dtf_is_testdir.  Other methods prefixed by 'dtf_' are API.
+
+: ${SHELL=/bin/bash}
+
+
+__dtf_is_testdir ()
+{
+    test -d "$1" || return 1
+    case "$1" in
+      DTF_OUTPUT|DTF_RESULT|library)
+        return 1
+        ;;
+    esac
+    :
+}
+
+
+__dtf_run_testcase ()
+{
+    resultdir="$outputdir/$testname"
+    $__DTF_TOP_TEST && resultdir="$outputdir"
+
+    stdout="$resultdir/stdout"
+    stderr="$resultdir/stderr"
+
+    mkdir -p "$resultdir" && cd "$resultdir"
+
+    set dummy \
+        __DTF_TOP_TEST=false \
+        outputdir="$outputdir" \
+        "$@"
+    shift
+
+    if $__DTF_TOP_TEST; then
+        eval "$@" 4>&2 3>&1 \
+            2>> "$stderr" \
+            1>> "$stdout"
+    else
+        # TODO: avoid bashishm
+        eval "$@" \
+            2> >(tee -a "$stderr" >&2) \
+            1> >(tee -a "$stdout")
+    fi
+
+    case $? in
+      0|77)
+        return 0
+        ;;
+      *)
+        __dtf_rc=1
+        return 1
+        ;;
+    esac
+}
+
+
+__dtf_control_msg ()
+{
+    echo >&4 "$*"
+}
+
+
+__dtf_nl_control_msg ()
+{
+    __dtf_control_msg "
+ ** $* **
+"
+}
+
+
+__dtf_top_control_msg ()
+{
+    $__DTF_TOP_TEST && return
+    __dtf_nl_control_msg "$*"
+}
+
+
+__dtf_toplevel_result_msg ()
+{
+    $__DTF_TOP_TEST || return
+
+    case $1 in
+      0)
+        __dtf_nl_control_msg "Success."
+        ;;
+      *)
+        __dtf_nl_control_msg "Fail."
+        ;;
+    esac
+}
