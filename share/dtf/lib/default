@@ -28,7 +28,7 @@ __dtf_internal_fail ()
 __dtf_run_testcase ()
 {
     resultdir="$outputdir/$testname"
-    $__DTF_TOP_TEST && resultdir="$outputdir"
+    test "$testname" = ROOT && resultdir="$outputdir"
 
     stdout="$resultdir/stdout"
     stderr="$resultdir/stderr"
