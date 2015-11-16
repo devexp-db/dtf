@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 
 ## Some important facts about this code.
 ##
@@ -37,11 +37,9 @@ generate_wrapper ()
     test "$fix_testname" = '.' && fix_testname=ROOT
     fix_testname=${fix_testname##./}
 
-    echo '#! /bin/bash
+    echo '#! /bin/sh
 
 : ${__DTF_TOP_TEST=:}
-
-$__DTF_TOP_TEST && exec 3>&1 4>&2
 
 abs_dirname ()
 {

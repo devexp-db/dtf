@@ -1,7 +1,13 @@
-#! /bin/bash -x
+#! /bin/sh
 # vi: ft=sh
 
 test -z "$outputdir" && outputdir="$PWD/DTF_RESULT"
+
+$__DTF_TOP_TEST && {
+    exec 3>&1 4>&2
+    rm -rf "$outputdir"
+}
+
 
 . "$top_srcdir/library"
 
