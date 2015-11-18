@@ -2,6 +2,8 @@
 
 # Global library file.  Methods prefixed by '__dtf_' are internal, for example
 # __dtf_is_testdir.  Other methods prefixed by 'dtf_' are API.
+# This file must never be used as template for 'dg' because it is used both on
+# maintainer machine and on tested machine.
 
 : ${SHELL=/bin/sh}
 
