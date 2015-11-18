@@ -7,7 +7,9 @@
 ## - each test might have several tags -- future dependencies
 
 DTF_OUTPUT=DTF_OUTPUT
+DG=dg
 
+export opt_distro=fedora-rawhide-x86_64
 
 # config
 : ${outputdir=$PWD/$DTF_OUTPUT}
@@ -25,6 +27,12 @@ DTF_OUTPUT=DTF_OUTPUT
 info ()
 {
     echo " * $*"
+}
+
+
+dg_call ()
+{
+    "$DG" --distro="$opt_distro".yaml "$@"
 }
 
 
@@ -54,7 +62,7 @@ export top_srcdir=\$srcdir/$(printf %q "$2")
 export testname=$(printf %q "$fix_testname")
 EOF
 
-    cat "$dtftpldir/run.tpl" >> "$_run_cmd"
+    dg_call --template "$dtftpldir/run.tpl" >> "$_run_cmd" || exit 1
 
     chmod +x "$_run_cmd"
 }
@@ -71,9 +79,14 @@ count_recursive_walk ()
     mkdir -p "$outputdir/$2"
 
     generate_wrapper "$2" "$3"
-    test -f testcase \
-        && cp testcase "$outputdir/$2"
-    test -f library && cat library >> "$outputdir/library"
+
+    if test -f testcase; then
+        dg_call --template testcase --output "$outputdir/$2/testcase"
+        test $? -eq 0 || exit 1
+    fi
+
+    test -f library && dg_call --template library >> "$outputdir/library"
+    test $? -eq 0 || exit 1
 
     for _rw_i in *
     do
@@ -87,6 +100,12 @@ count_recursive_walk ()
     cd ..
 }
 
+
+# TODO: option parsing
+if test x"$1" == x--distro
+then
+    test -n "$2" && opt_distro="$2"
+fi
 
 test -d "$outputdir" && {
     chmod u+w "$outputdir" -R

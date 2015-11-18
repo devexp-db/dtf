@@ -3,4 +3,4 @@
 srcdir=`dirname "$0"`
 export bindir=$srcdir/bin
 export datadir=$srcdir/share
-$bindir/dtf-gen
+"$bindir"/dtf-gen "$@"
