@@ -16,7 +16,7 @@ __dtf_rc=0
 
 # Gather sub-tests.
 sub_tests=
-for __dtf_sub_test in $srcdir/*
+for __dtf_sub_test in "$srcdir"/*
 do
   __dtf_is_testdir "$__dtf_sub_test" || continue
   sub_tests="$sub_tests
