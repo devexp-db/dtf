@@ -30,9 +30,17 @@ info ()
 }
 
 
+die ()
+{
+    echo >&2 "FATAL: $*"
+    exit 1
+}
+
+
 dg_call ()
 {
-    "$DG" --distro="$opt_distro".yaml "$@"
+    "$DG" --distro="$opt_distro".yaml "$@" \
+        || die "dg failure"
 }
 
 
@@ -62,7 +70,7 @@ export top_srcdir=\$srcdir/$(printf %q "$2")
 export testname=$(printf %q "$fix_testname")
 EOF
 
-    dg_call --template "$dtftpldir/run.tpl" >> "$_run_cmd" || exit 1
+    dg_call --template "$dtftpldir/run.tpl" >> "$_run_cmd"
 
     chmod +x "$_run_cmd"
 }
@@ -82,18 +90,17 @@ count_recursive_walk ()
 
     if test -f testcase; then
         dg_call --template testcase --output "$outputdir/$2/testcase"
-        test $? -eq 0 || exit 1
     fi
 
     test -f library && dg_call --template library >> "$outputdir/library"
-    test $? -eq 0 || exit 1
 
     for _rw_i in *
     do
       __dtf_is_testdir "$_rw_i" || continue
       _rw_fulldir="$2/$_rw_i"
 
-      mkdir -p "$outputdir/$_rw_fulldir" || exit 1
+      mkdir -p "$outputdir/$_rw_fulldir" \
+          || die "can't create $outputdir/$_rw_fulldir"
 
       count_recursive_walk "$_rw_i" "$2/$_rw_i" "$3/.."
     done
