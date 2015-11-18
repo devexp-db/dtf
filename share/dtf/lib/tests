@@ -1,0 +1,119 @@
+#! /bin/sh
+
+# Library for dtf tests.
+
+# dtf_skip [REASON]
+# -----------------
+dtf_skip ()
+{
+    test -n "$1" && echo >&2 "SKIP: $1"
+    exit 77
+}
+
+dtf_fail ()
+{
+    test -n "$1" && echo >&2 "$1"
+    exit 1
+}
+
+
+__dtf_method_not_implemented ()
+{
+    dtf_fail "'$1' method is not implemented"
+}
+
+
+# dtf_pkg_installed PKGNAME
+# -------------------------
+dtf_pkg_installed ()
+{
+# {% if config.os.id in ["fedora", "rhel", "centos"] %}
+    rpm -q "$1" &>/dev/null
+# {% else %}
+    __dtf_method_not_implemented "dtf_pkg_installed"
+# {% endif %}
+}
+
+
+__dtf_assert_nargs ()
+{
+    _d_nargs=$1 ; shift
+    _d_method=$1 ; shift
+
+    test $# -ge "$_d_nargs" && return
+
+    if test "$_d_nargs" -eq 1; then
+      dtf_fail "method '$_d_method' requires at least 1 argument"
+    else
+      dtf_fail "method '$_d_method' requires at least $_d_nargs arguments"
+    fi
+}
+
+
+dtf_is_root ()
+{
+    _d_uid=`id -u`
+    test x"$_d_uid" = x0
+}
+
+
+dtf_assert ()
+{
+    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
+
+    case $1 in
+      root|ROOT)
+        dtf_is_root || dtf_fail "root accout required"
+        ;;
+      *)
+        dtf_fail "dtf_assert '$1' not implemented"
+        ;;
+    esac
+}
+
+
+dtf_pkg_install ()
+{
+    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
+
+    _d_pkg_inst=$1 ; shift
+
+    dtf_assert root
+
+    # {{ "\n    " + commands.pkginstaller.install(['"$_d_pkg_inst"'], {'docs': True}) }}
+
+    test $? -eq 0 || dtf_fail "can't install '$_d_pkg_inst' package"
+}
+
+
+__dtf_prereq_pkg ()
+{
+    __dtf_assert_nargs 2 'dtf_prereq pkg' ${1+"$@"}
+
+    _d_pkg=$1 ; shift
+
+    dtf_pkg_installed "$_d_pkg" && return 0
+
+    dtf_pkg_install "$_d_pkg"
+}
+
+
+# dtf_prereq REQUIREMENT [ARGS..]
+# -------------------------------
+# Make sure the requirement is met or fail.
+dtf_prereq ()
+{
+    __dtf_assert_nargs 1 dtf_prereq ${1+"$@"}
+
+    _d_requirement=$1 ; shift
+
+    case $_d_requirement in
+      pkg)
+        __dtf_prereq_pkg "$@"
+        ;;
+
+      *)
+        dtf_fail "dtf_prereq: action '$_d_requirement' not implemented"
+        ;;
+    esac
+}
