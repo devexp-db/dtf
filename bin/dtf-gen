@@ -7,7 +7,7 @@
 ## - each test might have several tags -- future dependencies
 
 DTF_OUTPUT=DTF_OUTPUT
-DG=dg
+: ${DG=dg}
 
 export opt_distro=fedora-rawhide-x86_64
 

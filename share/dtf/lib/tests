@@ -95,16 +95,42 @@ dtf_assert ()
 }
 
 
-dtf_pkg_install ()
+dtf_pkg ()
 {
-    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
-
-    _d_pkg_inst=$1 ; shift
+    __dtf_assert_nargs 2 'dtf_pkg' ${1+"$@"}
+    _d_action=$1 ; shift
+    _d_pkg=$1 ; shift
 
     dtf_assert root
 
-    # {{ "\n    " + commands.pkginstaller.install(['"$_d_pkg_inst"'], {'docs': True}) }}
+    case $_d_action in
+      remove)
+        # {{ "\n    " + commands.pkginstaller.remove(['"$_d_pkg"'], {'docs': True}) }}
+        ;;
+      install)
+        # {{ "\n    " + commands.pkginstaller.install(['"$_d_pkg"'], {'docs': True}) }}
+        ;;
+      *)
+        dtf_fail "dtf_pkg: unimplemented action '$_d_action'"
+        ;;
+    esac
+}
 
+
+dtf_pkg_install ()
+{
+    __dtf_assert_nargs 2 'dtf_pkg_install' ${1+"$@"}
+    _d_pkg_rem=$1 ; shift
+    dtf_pkg remove "$_d_pkg_inst"
+    test $? -eq 0 || dtf_fail "can't remove '$_d_pkg_inst' package"
+}
+
+
+dtf_pkg_remove ()
+{
+    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
+    _d_pkg_inst=$1 ; shift
+    dtf_pkg install "$_d_pkg_inst"
     test $? -eq 0 || dtf_fail "can't install '$_d_pkg_inst' package"
 }
 
@@ -116,10 +142,16 @@ __dtf_prereq_pkg ()
     _d_subaction=$1 ; shift
     _d_pkg=$1 ; shift
 
+    __dtf_debug "making sure $_d_pkg is $_d_subaction"
+
     case $_d_subaction in
       installed)
         dtf_pkg_installed "$_d_pkg" && return 0
         dtf_pkg_install "$_d_pkg"
+        ;;
+      missing)
+        dtf_pkg_installed "$_d_pkg" || return 0
+        dtf_pkg_remove "$_d_pkg"
         ;;
       *)
         dtf_fail "dtf_prereq pkg: not implemented action $_d_subaction"
