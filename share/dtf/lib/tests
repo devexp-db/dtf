@@ -10,12 +10,33 @@ dtf_skip ()
     exit 77
 }
 
+
 dtf_fail ()
 {
     test -n "$1" && echo >&2 "$1"
     exit 1
 }
 
+
+dtf_debug ()
+{
+    for _d_i in $1
+    do
+        case " $DTF_DBG_KEYWORDS " in
+            *\ $_d_i\ *)
+                shift
+                echo >&4 " ~ $*"
+                return 0
+            ;;
+        esac
+    done
+}
+
+
+__dtf_debug ()
+{
+    dtf_debug dtf_lib "$*"
+}
 
 __dtf_method_not_implemented ()
 {
@@ -27,6 +48,7 @@ __dtf_method_not_implemented ()
 # -------------------------
 dtf_pkg_installed ()
 {
+    __dtf_debug "checking whether '$1' is installed"
 # {% if config.os.id in ["fedora", "rhel", "centos"] %}
     rpm -q "$1" &>/dev/null
 # {% else %}
@@ -42,10 +64,11 @@ __dtf_assert_nargs ()
 
     test $# -ge "$_d_nargs" && return
 
+    _d_tr="$# given ($*)"
     if test "$_d_nargs" -eq 1; then
-      dtf_fail "method '$_d_method' requires at least 1 argument"
+      dtf_fail "method '$_d_method' requires at least 1 argument, $_d_tr"
     else
-      dtf_fail "method '$_d_method' requires at least $_d_nargs arguments"
+      dtf_fail "method '$_d_method' requires at least $_d_nargs arguments, $_d_tr"
     fi
 }
 
@@ -90,11 +113,18 @@ __dtf_prereq_pkg ()
 {
     __dtf_assert_nargs 2 'dtf_prereq pkg' ${1+"$@"}
 
+    _d_subaction=$1 ; shift
     _d_pkg=$1 ; shift
 
-    dtf_pkg_installed "$_d_pkg" && return 0
-
-    dtf_pkg_install "$_d_pkg"
+    case $_d_subaction in
+      installed)
+        dtf_pkg_installed "$_d_pkg" && return 0
+        dtf_pkg_install "$_d_pkg"
+        ;;
+      *)
+        dtf_fail "dtf_prereq pkg: not implemented action $_d_subaction"
+        ;;
+    esac
 }
 
 
