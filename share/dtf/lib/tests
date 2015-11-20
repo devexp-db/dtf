@@ -88,6 +88,10 @@ dtf_assert ()
       root|ROOT)
         dtf_is_root || dtf_fail "root accout required"
         ;;
+      cmd)
+        shift
+        __dtf_assert_cmd "$@"
+        ;;
       *)
         dtf_fail "dtf_assert '$1' not implemented"
         ;;
@@ -158,6 +162,34 @@ __dtf_prereq_pkg ()
 }
 
 
+__dtf_cmd ()
+{
+    __dtf_debug "running $1"
+
+    _d_cmd=$1 ; shift
+    eval "$_d_cmd"
+    __dtf_cmd_result_status=$?
+}
+
+
+__dtf_assert_cmd ()
+{
+    _d_a_cmd=$1         ; shift
+    _d_ok_statuses=$1   ; shift
+    __dtf_cmd "$_d_a_cmd"
+
+    case " $_d_ok_statuses " in
+      *"$__dtf_cmd_result_status "*)
+        ;;
+      *)
+        _d_f_msg="cmd '$_d_a_cmd' ended with '$__dtf_cmd_result_status' while "
+        _d_f_msg="$_d_f_msg it should end with one of { $_d_ok_statuses }"
+        dtf_fail "$_d_f_msg"
+        ;;
+    esac
+}
+
+
 # dtf_prereq REQUIREMENT [ARGS..]
 # -------------------------------
 # Make sure the requirement is met or fail.
@@ -171,7 +203,6 @@ dtf_prereq ()
       pkg)
         __dtf_prereq_pkg "$@"
         ;;
-
       *)
         dtf_fail "dtf_prereq: action '$_d_requirement' not implemented"
         ;;
