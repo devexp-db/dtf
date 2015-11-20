@@ -41,6 +41,26 @@ dtf_debug ()
 }
 
 
+dtf_assert_right_distro ()
+{
+    _d_distro='{{ config.os.id }}'
+    _d_distroversion='{{ config.os.version }}'
+    _d_expected=$_d_distro-$_d_distroversion
+
+    case $_d_expected in
+      fedora-*|rhel-7*)
+        test -f /etc/os-release || dtf_fail "/etc/os-release not found!"
+        _d_real=$(. /etc/os-release ; echo "$ID-$VERSION_ID" ; )
+        test "$_d_real" = "$_d_expected" \
+            || dtf_fail "/etc/os-release is wong: $_d_real vs $_d_expected"
+        ;;
+      *)
+        dtf_fail "dtf_assert_right_distro () is not implemented here"
+        ;;
+    esac
+}
+
+
 __dtf_debug ()
 {
     dtf_debug dtf_lib "$*"
