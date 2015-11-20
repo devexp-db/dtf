@@ -11,12 +11,17 @@
 __dtf_is_testdir ()
 {
     test -d "$1" || return 1
+
     case "$1" in
       DTF_OUTPUT|DTF_RESULT|library)
         return 1
         ;;
     esac
-    :
+
+    _d_sub_path=`readlink -f "$1"`
+    _d_out_path=`readlink -f "$outputdir"`
+
+    test "$_d_sub_path" != "$_d_out_path"
 }
 
 

@@ -114,6 +114,11 @@ then
     test -n "$2" && opt_distro="$2"
 fi
 
+case $outputdir in
+    /*) : ;;
+    *) die "not absolute \$outputdir=$outputdir" ;;
+esac
+
 test -d "$outputdir" && {
     chmod u+w "$outputdir" -R
     /bin/rm -rf "$outputdir"
