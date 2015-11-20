@@ -119,19 +119,17 @@ dtf_pkg ()
 
 dtf_pkg_install ()
 {
-    __dtf_assert_nargs 2 'dtf_pkg_install' ${1+"$@"}
-    _d_pkg_rem=$1 ; shift
-    dtf_pkg remove "$_d_pkg_inst"
-    test $? -eq 0 || dtf_fail "can't remove '$_d_pkg_inst' package"
+    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
+    dtf_pkg install "$1"
+    test $? -eq 0 || dtf_fail "can't install '$1' package"
 }
 
 
 dtf_pkg_remove ()
 {
-    __dtf_assert_nargs 1 'dtf_pkg_install' ${1+"$@"}
-    _d_pkg_inst=$1 ; shift
-    dtf_pkg install "$_d_pkg_inst"
-    test $? -eq 0 || dtf_fail "can't install '$_d_pkg_inst' package"
+    __dtf_assert_nargs 1 'dtf_pkg_remove' ${1+"$@"}
+    dtf_pkg remove "$1"
+    test $? -eq 0 || dtf_fail "can't remove '$1' package"
 }
 
 
