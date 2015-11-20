@@ -1,0 +1,16 @@
+- testsuite!
+
+- libtool features (requires configure.ac)
+    - option-parser
+    - bootstrap
+    - funclib.sh
+        - ${1+"$@"} does not work in zsh, funclib.sh fixes that
+
+- add --with-koji-build=ID option
+    - this should create temporary directory, download packages into it, run
+      createrepo/createrepo_c and add repo file
+
+- introduce 'DTF_BETA=' env variable -- beta API methods would fail if this
+  variable is empty/undefined.
+
+- dtf_fail_hooks off/on option
