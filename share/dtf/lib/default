@@ -54,10 +54,11 @@ __dtf_run_testcase ()
     resultdir="$outputdir/$testname"
     test "$testname" = ROOT && resultdir="$outputdir"
 
-    stdout="$resultdir/stdout"
-    stderr="$resultdir/stderr"
+    stdout="$resultdir/.dtf/stdout"
+    stderr="$resultdir/.dtf/stderr"
+    exit_status_reason="$resultdir/.dtf/exit_status_reason"
 
-    mkdir -p "$resultdir" && cd "$resultdir"
+    mkdir -p "$resultdir/.dtf" && cd "$resultdir"
 
     set dummy \
         __DTF_TOP_TEST=false \
@@ -103,6 +104,13 @@ __dtf_run_testcase ()
         return 1
         ;;
     esac
+}
+
+
+__dtf_control_msg_n ()
+{
+    # TODO: portability of -n option
+    echo -n >&4 "$1"
 }
 
 

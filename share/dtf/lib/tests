@@ -24,14 +24,20 @@
 # -----------------
 dtf_skip ()
 {
-    test -n "$1" && echo >&2 "SKIP: $1"
+    test -n "$1" && {
+        echo >&2 "SKIP: $1"
+        echo "$1" > .dtf/exit_status_reason
+    }
     exit 77
 }
 
 
 dtf_fail ()
 {
-    test -n "$1" && echo >&2 "$1"
+    test -n "$1" && {
+        echo >&2 "FATAL: $1"
+        echo "$1" > .dtf/exit_status_reason
+    }
     test -z "$dtf_fail_hooks" && exit 1
 
     echo >& "running dtf_fail hooks $dtf_fail_hooks"

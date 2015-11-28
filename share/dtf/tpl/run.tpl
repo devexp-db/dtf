@@ -43,8 +43,23 @@ done
 #
 
 test -f $srcdir/testcase && {
-  __dtf_control_msg " $testname"
+  __dtf_control_msg_n " $testname"
   __dtf_run_testcase "$SHELL" "$srcdir"/testcase
+  case $__save_rc in
+    77)
+        msg=' -> SKIP'
+        ;;
+    0)
+        msg=' -> OK'
+        ;;
+    *)
+        msg=' -> FAIL'
+        ;;
+  esac
+
+  esr=`test -f .dtf/exit_status_reason && cat .dtf/exit_status_reason`
+  test -n "$esr" && msg="$msg: $esr"
+  __dtf_control_msg "$msg"
 }
 
 #
