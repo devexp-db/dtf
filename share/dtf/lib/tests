@@ -216,9 +216,9 @@ __dtf_prereq_pkg ()
 
 __dtf_cmd ()
 {
-    __dtf_debug "running $1"
-
     _d_cmd=$1 ; shift
+
+    __dtf_debug "running: "`eval "echo $_d_cmd"`
     eval "$_d_cmd"
     __dtf_cmd_result_status=$?
 }
