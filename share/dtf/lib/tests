@@ -273,3 +273,56 @@ dtf_is_fedora ()
     false
 # {% endif %}
 }
+
+
+__dtf_echo_version_id ()
+{
+  (
+    . /etc/os-release || exit 1
+    echo "$VERSION_ID"
+  ) || dtf_fail "can't get fedora version"
+}
+
+
+# dtf_distgit_branch
+# ------------------
+# Set $dtf_distgit_branch_result variable to right branch name
+# in Fedora's dist-git.
+dtf_distgit_branch ()
+{
+    dtf_is_fedora || dtf_fail "not implemented for this distro"
+
+    __id=`__dtf_echo_version_id`
+
+    case $__id in
+      rawhide)
+        dtf_distgit_branch_result=master
+        ;;
+      *)
+        dtf_distgit_branch_result=f$__id
+        ;;
+    esac
+}
+
+
+# dtf_builddep SRPM
+# -----------------
+dtf_builddep ()
+{
+    dtf_is_fedora || dtf_fail "not implemented for this distro"
+
+    dtf_assert root
+
+    # {% if config.os.id == "fedora" and config.os.version >= 22 %}
+    dnf builddep "$1"
+    # {% else %}
+    dtf_prereq pkg installed yum-utils
+    yum-builddep "$1"
+    # {% endif %}
+
+# {% if config.os.id in ["fedora", "rhel", "centos"] %}
+    rpm -q "$1" &>/dev/null
+# {% else %}
+    __dtf_method_not_implemented "dtf_pkg_installed"
+# {% endif %}
+}
