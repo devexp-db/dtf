@@ -254,3 +254,16 @@ dtf_prereq ()
         ;;
     esac
 }
+
+
+# dtf_is_fedora
+# -------------
+# Return true if we run on Fedora box.
+dtf_is_fedora ()
+{
+# {% if config.os.id == "fedora" %}
+    true
+# {% else %}
+    false
+# {% endif %}
+}
