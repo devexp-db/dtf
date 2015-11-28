@@ -40,7 +40,7 @@ dtf_fail ()
     }
     test -z "$dtf_fail_hooks" && exit 1
 
-    echo >& "running dtf_fail hooks $dtf_fail_hooks"
+    echo >&2 "running dtf_fail hooks $dtf_fail_hooks"
     for _i_hook in $dtf_fail_hooks
     do
       $_i_hook
