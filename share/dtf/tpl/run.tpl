@@ -57,7 +57,8 @@ test -f $srcdir/testcase && {
         ;;
   esac
 
-  esr=`test -f .dtf/exit_status_reason && cat .dtf/exit_status_reason`
+  esr_file=.dtf/exit_status_reason
+  esr=`test -f "$esr_file" 2>/dev/null && cat "$esr_file"`
   test -n "$esr" && msg="$msg: $esr"
   __dtf_control_msg "$msg"
 }

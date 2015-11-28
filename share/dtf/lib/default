@@ -63,6 +63,7 @@ __dtf_run_testcase ()
     set dummy \
         __DTF_TOP_TEST=false \
         outputdir="$outputdir" \
+        __dtf_result_dir="$resultdir/.dtf" \
         "$@"
     shift
 
