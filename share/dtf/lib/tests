@@ -314,10 +314,10 @@ dtf_builddep ()
     dtf_assert root
 
     # {% if config.os.id == "fedora" and config.os.version >= 22 %}
-    dnf builddep "$1"
+    dnf builddep -y "$1"
     # {% else %}
     dtf_prereq pkg installed yum-utils
-    yum-builddep "$1"
+    yum-builddep -y "$1"
     # {% endif %}
 
 # {% if config.os.id in ["fedora", "rhel", "centos"] %}
