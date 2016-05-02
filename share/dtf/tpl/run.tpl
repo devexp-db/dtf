@@ -42,7 +42,7 @@ done
 # Execute the testcase, when available.
 #
 
-test -f $srcdir/testcase && {
+test -f "$srcdir"/testcase && {
   __dtf_control_msg_n " $testname"
   __dtf_run_testcase "$SHELL" "$srcdir"/testcase
   case $__save_rc in
