@@ -76,7 +76,7 @@ dtf_assert_right_distro ()
         test -f /etc/os-release || dtf_fail "/etc/os-release not found!"
         _d_real=$(. /etc/os-release ; echo "$ID-$VERSION_ID" ; )
         test "$_d_real" = "$_d_expected" \
-            || dtf_fail "/etc/os-release is wong: $_d_real vs $_d_expected"
+            || dtf_fail "/etc/os-release is wrong: $_d_real vs $_d_expected"
         ;;
       *)
         dtf_fail "dtf_assert_right_distro () is not implemented here"
