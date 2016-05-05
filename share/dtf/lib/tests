@@ -219,7 +219,14 @@ __dtf_cmd ()
     _d_cmd=$1 ; shift
 
     __dtf_debug "running: "`eval "echo $_d_cmd"`
-    eval "$_d_cmd"
+
+    if test -z "$dtf_cmd_wrapper"; then
+        eval "$_d_cmd"
+    else
+        __dtf_debug "note, we are using $dtf_cmd_wrapper wrapper"
+        $dtf_cmd_wrapper "$_d_cmd"
+    fi
+
     __dtf_cmd_result_status=$?
 }
 
