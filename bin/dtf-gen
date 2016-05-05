@@ -180,7 +180,8 @@ test -d "$outputdir" && {
 }
 
 mkdir -p "$outputdir"
-cat "$dtflibdir/default" > "$outputdir/library"
+cat "$dtflibdir"/funclib.sh > "$outputdir"/library
+cat "$dtflibdir/default" >> "$outputdir/library"
 dg_call --template "$dtflibdir/tests" >> "$outputdir/library"
 
 count_recursive_walk "$toporigdir" . .
