@@ -51,18 +51,29 @@ dtf_fail ()
 
 
 dtf_debug ()
-{
-    for _d_i in $1
+(
+    # This is POSIX "only"
+    set -f
+    for _d_selected_key in $DTF_DBG_KEYWORDS
     do
-        case " $DTF_DBG_KEYWORDS " in
-            *\ $_d_i\ *)
+        save_IFS=$IFS
+        IFS=','
+        for _d_debug_key in $1
+        do
+            case $_d_debug_key in
+            $_d_selected_key)
+                _d_full_key=$1
                 shift
-                echo >&4 " ~ $*"
+                echo >&4 " ~ [$_d_full_key]: $*"
+                IFS=$save_IFS
                 return 0
-            ;;
-        esac
+                ;;
+            esac
+        done
+
     done
-}
+    IFS=$save_IFS
+)
 
 
 dtf_assert_right_distro ()
